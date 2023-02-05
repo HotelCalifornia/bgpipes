@@ -19,13 +19,12 @@ import io.yttrium.bgpipes.block.node.BlockItemNode
 import io.yttrium.bgpipes.block.node.BlockNode
 import io.yttrium.bgpipes.gui.node.MenuNode
 import net.minecraft.world.inventory.MenuType
-import net.minecraft.world.item.CreativeModeTabs
 import net.minecraft.world.item.Item
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.event.CreativeModeTabEvent
 import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
 import net.minecraftforge.registries.DeferredRegister
@@ -90,25 +89,23 @@ class BGPipes {
 
     init {
         val modEventBus = FMLJavaModLoadingContext.get().modEventBus
+
         modEventBus.addListener(this::commonSetup)
+        modEventBus.addListener(this::clientSetup)
 
         BlockRegistry.register(modEventBus)
         BlockEntityRegistry.register(modEventBus)
         ItemRegistry.register(modEventBus)
 
         MinecraftForge.EVENT_BUS.register(this)
-        modEventBus.addListener(this::addCreative)
-    }
-
-    private fun addCreative(event: CreativeModeTabEvent.BuildContents) {
-        if (event.tab == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
-            Blocks.filterValues { v ->
-                v.get().asItem() != net.minecraft.world.item.Items.AIR
-            }.forEach { (_, v) -> event.accept(v) }
-        }
     }
 
     private fun commonSetup(event: FMLCommonSetupEvent) {
-        TODO("Not yet implemented")
+        Logger.info("event: {} --- {}", event.javaClass.toString(), event.description())
+    }
+
+    private fun clientSetup(event: FMLClientSetupEvent) {
+        Logger.info("event: {} --- {}", event.javaClass.toString(), event.description())
+        TODO("Register menus")
     }
 }

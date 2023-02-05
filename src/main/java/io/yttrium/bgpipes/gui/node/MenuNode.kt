@@ -11,8 +11,6 @@
 package io.yttrium.bgpipes.gui.node
 
 import io.yttrium.bgpipes.BGPipes
-import net.minecraft.core.Direction
-import net.minecraft.world.Container
 import net.minecraft.world.SimpleContainer
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
@@ -28,35 +26,52 @@ class MenuNode(
     containerId: Int, playerInventory: Inventory, private var containerAccess: ContainerLevelAccess
 ) : AbstractContainerMenu(BGPipes.Menus[BGPipes.MenuTypes.Node]!!.get(), containerId) {
 
-    private val player = playerInventory.player
-    private val inputSlots: Map<Direction, Container> = Direction.values()
-        .asIterable()
-        .associateBy({ it }, {
-            object : SimpleContainer(9) {
-                override fun setChanged() {
-                    super.setChanged()
-                    this@MenuNode.slotsChanged(this)
-                }
+    enum class GuiElement {
+        PlayerInventory, PlayerHotbar, NodeFiltersUp, NodeFiltersNorth, NodeFiltersWest, NodeFiltersEast, NodeFiltersSouth, NodeFiltersDown
+    }
+
+    data class ElementBounds(val x0: Int, val y0: Int, val x1: Int, val y1: Int)
+
+    private fun generateContainerElement(bounds: ElementBounds): Pair<ElementBounds, SimpleContainer> {
+        return Pair(bounds, object : SimpleContainer(4) {
+            override fun setChanged() {
+                super.setChanged()
+                this@MenuNode.slotsChanged(this)
             }
         })
+    }
+
+    private val guiMap = mapOf(
+        GuiElement.PlayerInventory to Pair(ElementBounds(8, 133, 167, 184), null),
+        GuiElement.PlayerHotbar to Pair(ElementBounds(8, 191, 167, 206), null),
+        GuiElement.NodeFiltersUp to generateContainerElement(ElementBounds(33, 16, 66, 49)),
+        GuiElement.NodeFiltersNorth to generateContainerElement(ElementBounds(71, 16, 104, 49)),
+        GuiElement.NodeFiltersWest to generateContainerElement(ElementBounds(33, 54, 66, 87)),
+        GuiElement.NodeFiltersEast to generateContainerElement(ElementBounds(109, 53, 142, 86)),
+        GuiElement.NodeFiltersSouth to generateContainerElement(ElementBounds(71, 91, 104, 124)),
+        GuiElement.NodeFiltersDown to generateContainerElement(ElementBounds(109, 91, 142, 124)),
+    )
+
+    private val player = playerInventory.player
 
     init {
-        TODO("actually figure out the layout of this gui and fix the slot positions")
         TODO("create class that handles items as filter inputs only and not real itemstacks")
-        inputSlots.forEach { (k, v) -> addSlot(Slot(v, k.ordinal, 0, 0)) }
+        // bind filter slots
+        guiMap.forEach { (element, value) ->
+            val (bounds, container) = value
+            container?.let {
+                for (u in (0..1)) {
+                    for (v in (0..1)) {
+                        addSlot(Slot(it, element.ordinal, bounds.x0 + (u * 18), bounds.y0 + (v * 18)))
+                    }
+                }
+            }
+        }
 
         // bind player inventory
         for (row in (0..2)) {
             for (column in (0..8)) {
-                addSlot(
-                    Slot(
-                        playerInventory,
-                        // some magic shit i could probably work out if i cared
-                        // to but since i don't, this is copied from minecraft
-                        // source
-                        column + row * 9 + 9, 8 + column * 18, 84 + row * 18
-                    )
-                )
+                addSlot(Slot(playerInventory, column + row * 9 + 9, 8 + column * 18, 84 + row * 18))
             }
         }
         // bind player hotbar

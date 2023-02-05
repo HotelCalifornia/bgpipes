@@ -18,6 +18,8 @@ import io.yttrium.bgpipes.block.node.BlockEntityNode
 import io.yttrium.bgpipes.block.node.BlockItemNode
 import io.yttrium.bgpipes.block.node.BlockNode
 import io.yttrium.bgpipes.gui.node.MenuNode
+import io.yttrium.bgpipes.gui.node.ScreenNode
+import net.minecraft.client.gui.screens.MenuScreens
 import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.Item
 import net.minecraft.world.level.block.Block
@@ -106,6 +108,6 @@ class BGPipes {
 
     private fun clientSetup(event: FMLClientSetupEvent) {
         Logger.info("event: {} --- {}", event.javaClass.toString(), event.description())
-        TODO("Register menus")
+        event.enqueueWork { MenuScreens.register(Menus[MenuTypes.Node]!!.get(), ::ScreenNode) }
     }
 }

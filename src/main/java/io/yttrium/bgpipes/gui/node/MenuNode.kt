@@ -73,7 +73,8 @@ class MenuNode(
     )
 
     override fun quickMoveStack(pPlayer: Player, pIndex: Int): ItemStack {
-        TODO("Not yet implemented")
+        // doesn't really make sense to quick move items into this menu
+        return ItemStack.EMPTY
     }
 
     override fun stillValid(pPlayer: Player): Boolean {

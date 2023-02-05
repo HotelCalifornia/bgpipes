@@ -20,6 +20,7 @@ import io.yttrium.bgpipes.block.node.BlockNode
 import io.yttrium.bgpipes.gui.node.MenuNode
 import io.yttrium.bgpipes.gui.node.ScreenNode
 import net.minecraft.client.gui.screens.MenuScreens
+import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.Item
 import net.minecraft.world.level.block.Block
@@ -77,7 +78,7 @@ class BGPipes {
 
         private val MenuRegistry: DeferredRegister<MenuType<*>> =
             DeferredRegister.create(ForgeRegistries.MENU_TYPES, ModID)
-        val Menus = mapOf<MenuTypes, RegistryObject<MenuType<*>>>(
+        val Menus = mapOf<MenuTypes, RegistryObject<MenuType<AbstractContainerMenu>>>(
             MenuTypes.Node to MenuRegistry.register("menu_node") { MenuType(::MenuNode) }
         )
 
@@ -108,6 +109,9 @@ class BGPipes {
 
     private fun clientSetup(event: FMLClientSetupEvent) {
         Logger.info("event: {} --- {}", event.javaClass.toString(), event.description())
-        event.enqueueWork { MenuScreens.register(Menus[MenuTypes.Node]!!.get(), ::ScreenNode) }
+        @Suppress("UNCHECKED_CAST")
+        event.enqueueWork {
+            MenuScreens.register(Menus[MenuTypes.Node]!!.get() as MenuType<MenuNode>, ::ScreenNode)
+        }
     }
 }

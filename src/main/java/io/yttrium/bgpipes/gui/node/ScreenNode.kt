@@ -22,8 +22,8 @@ import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Inventory
 
-class ScreenNode(pMenu: MenuNode, pPlayerInventory: Inventory) : AbstractContainerScreen<MenuNode>(
-    pMenu, pPlayerInventory, Component.translatable("bgpipes.gui.node.title")
+class ScreenNode(menu: MenuNode, playerInventory: Inventory, title: Component) : AbstractContainerScreen<MenuNode>(
+    menu, playerInventory, title
 ) {
     class PushPullConfigurationButton(
         pX: Int,

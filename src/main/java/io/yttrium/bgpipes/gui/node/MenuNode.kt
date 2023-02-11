@@ -19,6 +19,13 @@ import net.minecraft.world.inventory.ContainerLevelAccess
 import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.ItemStack
 
+fun slotArray(number: Int, gridDimensions: Pair<Int, Int>, baseUV: Pair<Int, Int>): Array<Pair<Int, Int>> {
+    val (gridWidth, gridHeight) = gridDimensions
+    val (u, v) = baseUV
+
+    return Array(number) { i -> Pair(u + ((i % gridWidth) * 18), v + ((i / gridHeight) * 18)) }
+}
+
 /**
  * primary constructor: server side
  */
@@ -41,6 +48,8 @@ class MenuNode(
         })
     }
 
+    private val player = playerInventory.player
+
     private val guiMap = mapOf(
         GuiElement.PlayerInventory to Pair(ElementBounds(8, 133, 167, 184), null),
         GuiElement.PlayerHotbar to Pair(ElementBounds(8, 191, 167, 206), null),
@@ -52,31 +61,26 @@ class MenuNode(
         GuiElement.NodeFiltersDown to generateContainerElement(ElementBounds(109, 91, 142, 124)),
     )
 
-    private val player = playerInventory.player
-
     init {
         TODO("create class that handles items as filter inputs only and not real itemstacks")
         // bind filter slots
-        guiMap.forEach { (element, value) ->
+        guiMap.forEach { (_, value) ->
             val (bounds, container) = value
             container?.let {
-                for (u in (0..1)) {
-                    for (v in (0..1)) {
-                        addSlot(Slot(it, element.ordinal, bounds.x0 + (u * 18), bounds.y0 + (v * 18)))
-                    }
+                slotArray(4, Pair(2, 2), Pair(bounds.x0, bounds.y0)).forEachIndexed { i, (u, v) ->
+                    addSlot(Slot(it, i, u, v))
                 }
             }
         }
 
         // bind player inventory
-        for (row in (0..2)) {
-            for (column in (0..8)) {
-                addSlot(Slot(playerInventory, column + row * 9 + 9, 8 + column * 18, 84 + row * 18))
-            }
+        slotArray(27, Pair(9, 3), Pair(8, 133)).forEachIndexed { i, (u, v) ->
+            addSlot(Slot(playerInventory, i, u, v))
         }
+
         // bind player hotbar
-        for (column in (0..8)) {
-            addSlot(Slot(playerInventory, column, 8 + column * 18, 142))
+        slotArray(9, Pair(9, 1), Pair(8, 142)).forEachIndexed { i, (u, v) ->
+            addSlot(Slot(playerInventory, 27 + i, u, v))
         }
     }
 
